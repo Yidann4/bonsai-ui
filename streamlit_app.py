@@ -2,9 +2,13 @@
 # My first app
 Here's our first attempt at using data to create a table:
 """
+import sys
+sys.path.append(".streamlit")
 
 import streamlit as st
 import pandas as pd
+
+from config_parser import postgres_conn
 
 st.write("Here's our first attempt at using data to create a table:")
 
@@ -39,9 +43,9 @@ st.session_state.name
 # water_levels = sqlconn.query('SELECT * FROM water_levels;', ttl="0")
 # water_levels
 
-remoteconn = st.connection("remote_postgresql", type="sql")
+remoteconn = st.connection(postgres_conn, type="sql")
 
 # Perform query.
 query = 'SELECT * FROM public.water_levels ORDER BY id DESC LIMIT 100;'
-remote_water_levels = remoteconn.query(query, ttl="10m")
+remote_water_levels = remoteconn.query(query, ttl="0")
 remote_water_levels
