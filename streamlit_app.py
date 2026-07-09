@@ -1,7 +1,19 @@
 """
 # My first app
 Here's our first attempt at using data to create a table:
+
+Run with: streamlit run streamlit_app.py
+Note: Only python 3.13 installation has streamlit
+
+To activate the conda environment with python 3.13 do conda activate py313. (You can see conda environments with conda env list)
+
+
 """
+
+
+# pip-compile --upgrade requirements.in
+# 
+
 import sys
 sys.path.append(".streamlit")
 
