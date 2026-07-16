@@ -8,8 +8,10 @@ if str(app_root) not in sys.path:
 
 import streamlit as st
 try:
+    from src.components.glass_container import glass_container
     from src.components.moisture_gauge import moisture_gauge
 except ModuleNotFoundError:
+    from glass_container import glass_container
     from moisture_gauge import moisture_gauge
 
 CARD_HEIGHT = "100px"
@@ -20,10 +22,10 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
     st.markdown(
         """
         <style>
-            .st-key-opaque-box div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div:has(.stEcharts) {
+            .st-key-live-card div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div:has(.stEcharts) {
                 margin-bottom: 0 !important;
             }
-            .st-key-opaque-box .stEcharts {
+            .st-key-live-card .stEcharts {
                 margin: 0 !important;
                 padding: 0 !important;
             }
@@ -37,21 +39,21 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
                width. Streamlit's stHorizontalBlock switches to a vertical
                stack below its mobile breakpoint (~640px) by default; this
                forces it to stay a row. */
-            .st-key-opaque-box div[data-testid="stHorizontalBlock"] {
+            .st-key-live-card div[data-testid="stHorizontalBlock"] {
                 flex-wrap: nowrap !important;
                 align-items: center;
                 width: auto !important;
                 display: inline-flex !important;
             }
-            .st-key-opaque-box .stHorizontalBlock .stColumn,
-            .st-key-opaque-box div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            .st-key-live-card .stHorizontalBlock .stColumn,
+            .st-key-live-card div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
                 min-width: 12rem !important;
                 width: auto !important;
                 max-width: 50% !important; 
                 flex: 0 0 auto !important;
             }
 
-            .st-key-opaque-box {
+            .st-key-live-card {
                 width: fit-content;
                 max-width: 100%;
             }
@@ -66,31 +68,7 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        """
-        <style>
-        .st-key-opaque-box {
-            /* Frosted glass effect */
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.40),  /* bigger difference = more light */
-                rgba(255, 255, 255, 0.08)
-            );
-            backdrop-filter: blur(10px) saturate(120%);
-            -webkit-backdrop-filter: blur(10px) saturate(120%); /* blurring amount, colour gets through amount */
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-            padding: 20px;
-            border-radius: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    with st.container(key="opaque-box"):
+    with glass_container(key="live-card"):
         st.text("Live")
         left, right = st.columns([1, 1])
         with left.container():

@@ -4,22 +4,10 @@ import altair as alt
 from pathlib import Path
 
 from src.stores.water_levels_store import set_lookback_period
+from src.components.glass_container import glass_container
+
 
 def levels_chart(levels_array: pd.DataFrame):
-    with st.container():
-    # Create two columns; adjust ratios (e.g., 70% text, 30% buttons) to fit your content
-        col1, col2 = st.columns([0.7, 0.3], vertical_alignment="bottom")
-
-        with st.container(horizontal=True, vertical_alignment="bottom"):
-            with st.container(horizontal_alignment="left", vertical_alignment="bottom"):
-                st.header("Levels")
-            with st.container(horizontal_alignment="right", vertical_alignment="bottom"):
-                # Lay out the buttons horizontally and aligned to the right
-                with st.container(horizontal=True, horizontal_alignment="right"):
-                    st.button("Daily", on_click=set_lookback_period, args=(pd.Timedelta(days=1),))
-                    st.button("Weekly", on_click=set_lookback_period, args=(pd.Timedelta(weeks=1),))
-                    st.button("Monthly", on_click=set_lookback_period, args=(pd.Timedelta(days=30),))
-
     level_chart = (
         alt.Chart(levels_array)
         .mark_area(opacity=0.45)
@@ -43,7 +31,15 @@ def levels_chart(levels_array: pd.DataFrame):
     )
 
     combined_chart = alt.layer(level_chart, battery_chart).resolve_scale(y="independent")
-    with st.container(border=True):
+    with glass_container(key="levels-chart"):
+        with st.container(horizontal=True):
+            with st.container(horizontal_alignment="left"):
+                st.header("Levels")
+                # Lay out the buttons horizontally and aligned to the right
+            with st.container(horizontal=True, horizontal_alignment="right"):
+                st.button("Daily", on_click=set_lookback_period, args=(pd.Timedelta(days=1),))
+                st.button("Weekly", on_click=set_lookback_period, args=(pd.Timedelta(weeks=1),))
+                st.button("Monthly", on_click=set_lookback_period, args=(pd.Timedelta(days=30),))
         st.altair_chart(combined_chart, use_container_width=True)
     
     
@@ -59,4 +55,4 @@ if __name__ == "__main__":
     st.markdown("# Levels Chart Demo")
 
     levels_chart(levels_array=store_obj.recent_levels)
-    store_obj.recent_levels
+    st.write(store_obj.recent_levels)
