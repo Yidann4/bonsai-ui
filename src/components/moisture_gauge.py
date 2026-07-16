@@ -16,7 +16,7 @@ def moisture_gauge(
     ranges: list | None = None,        # [[fraction, color], ...] background bands
     round_cap: bool = True,
     show_progress: bool = True,
-    font_weight: str | int = "normal",
+    font_weight: str | int = "bold",
     detail_offset: list | None = None,  # e.g. [0, "-20%"]
     start_angle: int = 180,
     end_angle: int = 0,
@@ -37,6 +37,7 @@ def moisture_gauge(
     value_colour = next(colour for max_v, colour in ranges if moisture_percent / 100 <= max_v)
 
     options = {
+        "backgroundColor": "rgba(0,0,0,0)",
         "series": [
             {
                 "type": "gauge",
@@ -44,7 +45,7 @@ def moisture_gauge(
                 "endAngle": end_angle,
                 # Pin the center near the bottom and enlarge radius so the
                 # semicircle fills the component's width/height.
-                "center": ["85%", "85%"],
+                "center": ["50%", "85%"],
                 "radius": radius,
                 "data": [{"value": moisture_percent}],
                 "min": 0,

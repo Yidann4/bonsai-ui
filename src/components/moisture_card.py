@@ -20,10 +20,10 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
     st.markdown(
         """
         <style>
-            div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div:has(.stEcharts) {
+            .st-key-opaque-box div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div:has(.stEcharts) {
                 margin-bottom: 0 !important;
             }
-            .stEcharts {
+            .st-key-opaque-box .stEcharts {
                 margin: 0 !important;
                 padding: 0 !important;
             }
@@ -37,13 +37,21 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
                width. Streamlit's stHorizontalBlock switches to a vertical
                stack below its mobile breakpoint (~640px) by default; this
                forces it to stay a row. */
-            div[data-testid="stHorizontalBlock"] {
+            .st-key-opaque-box div[data-testid="stHorizontalBlock"] {
                 flex-wrap: nowrap !important;
                 align-items: center;
+                width: auto !important;
+                display: inline-flex !important;
             }
-            .stHorizontalBlock .stColumn,
-            div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-                width: 50% !important;
+            .st-key-opaque-box .stHorizontalBlock .stColumn,
+            .st-key-opaque-box div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+                width: 12rem !important;
+                flex: 0 0 auto !important;
+            }
+
+            .st-key-opaque-box {
+                width: fit-content;
+                max-width: 100%;
             }
         </style>
         """,
@@ -56,25 +64,41 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
         unsafe_allow_html=True,
     )
 
-    left, right = st.columns([1, 1])
-    with left.container():
-        moisture_gauge(moisture_percent=moisture_percent, font_size=32, height=CARD_HEIGHT)
-    with right.container():
-        st.markdown(
-            f"""
-            <div style="height:{CARD_HEIGHT}; display:flex; flex-direction:column; justify-content:space-evenly;">
-                <span style="font-size:clamp(16px, 5vw, 30px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
-                    <span class="material-symbols-outlined metric-icon">battery_change</span>
-                    {latest_battery_level}%
-                </span>
-                <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
-                    <span class="material-symbols-outlined metric-icon">timer</span>
-                    {latest_measured_time}
-                </span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        """
+        <style>
+        .st-key-opaque-box {
+            background-color: rgba(255, 255, 255, 0.4); /* White with 40% opacity */
+            padding: 20px;
+            border-radius: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    with st.container(key="opaque-box"):
+        left, right = st.columns([1, 1])
+        with left.container():
+            moisture_gauge(moisture_percent=moisture_percent, font_size=32, height=CARD_HEIGHT)
+        with right.container():
+            st.markdown(
+                f"""
+                <div style="height:{CARD_HEIGHT}; display:flex; flex-direction:column; justify-content:space-evenly;">
+                    <span style="font-size:clamp(16px, 5vw, 30px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                        <span class="material-symbols-outlined metric-icon">battery_change</span>
+                        {latest_battery_level}%
+                    </span>
+                    <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                        <span class="material-symbols-outlined metric-icon">timer</span>
+                        {latest_measured_time}
+                    </span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 if __name__ == "__main__":

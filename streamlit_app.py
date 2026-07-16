@@ -16,6 +16,13 @@ from src.stores.water_levels_store import clear_water_levels_store_cache, load_w
 
 st.set_page_config(page_title="Bonsai Monitor", layout="wide", page_icon="🌲")
 
+page_bg_img = '''
+<style> [data-testid="stAppViewContainer"], .stApp { background-image: url("https://static.vecteezy.com/system/resources/previews/070/871/502/non_2x/bonsai-tree-in-ceramic-pot-on-stone-with-sunlight-outdoor-garden-art-free-photo.jpg"); background-size: cover; background-position: center; background-repeat: no-repeat; } [data-testid="stHeader"], [data-testid="stToolbar"] { background: transparent; } </style>
+'''
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+
 STORE_SESSION_KEY = "water_levels_store"
 
 if st.button("Refresh data"):
