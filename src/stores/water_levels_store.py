@@ -84,7 +84,6 @@ def load_water_levels_store(
     recent_levels = all_levels[all_levels["inserted_at"] >= cutoff].sort_values("inserted_at")
     formatted_latest_time = latest_row["aest_time"].strftime("%d %b %H:%M:%S")
 
-    print("AIDAN INTERACTION RELOADED")
     return WaterLevelsStoreState(
         all_levels=all_levels,
         recent_levels=recent_levels,

@@ -1,21 +1,11 @@
-"""
-# My first app
-Here's our first attempt at using data to create a table:
-
-Run with: streamlit run streamlit_app.py
-Note: Only python 3.13 installation has streamlit
-Also requires pip installing streamlit-echarts
-
-To activate the conda environment with python 3.13 do conda activate py313. (You can see conda environments with conda env list)
-
-
-"""
-
-
-# pip-compile --upgrade requirements.in
-# 
-
 import sys
+from pathlib import Path
+
+# look at bonsai-ui/src before looking at streamlit hosted mount/src
+app_root = Path(__file__).resolve().parent
+if str(app_root) not in sys.path:
+    sys.path.insert(0, str(app_root))
+
 sys.path.append(".streamlit")
 
 import streamlit as st

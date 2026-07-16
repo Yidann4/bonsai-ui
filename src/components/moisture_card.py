@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# look at bonsai-ui/src before looking at streamlit hosted mount/src
+app_root = Path(__file__).resolve().parent
+if str(app_root) not in sys.path:
+    sys.path.insert(0, str(app_root))
+
 import streamlit as st
 try:
     from src.components.moisture_gauge import moisture_gauge
