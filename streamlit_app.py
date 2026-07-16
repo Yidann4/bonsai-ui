@@ -32,8 +32,8 @@ if st.button("Refresh data"):
     clear_water_levels_store_cache()
     st.session_state.pop(STORE_SESSION_KEY, None)
 
-if STORE_SESSION_KEY not in st.session_state:
-    st.session_state[STORE_SESSION_KEY] = load_water_levels_store(postgres_conn)
+st.session_state[STORE_SESSION_KEY] = load_water_levels_store(postgres_conn)
+store = st.session_state[STORE_SESSION_KEY]
 
 store = st.session_state[STORE_SESSION_KEY]
 
@@ -43,4 +43,5 @@ moisture_card(store.latest_water_level, store.latest_battery_level, store.latest
 from src.components.levels_chart import levels_chart
 levels_chart(levels_array=store.recent_levels)
 
+st.header("All Levels Data")
 store.all_levels
