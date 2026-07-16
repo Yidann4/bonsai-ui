@@ -1,4 +1,5 @@
 import sys
+import base64
 from pathlib import Path
 
 # look at bonsai-ui/src before looking at streamlit hosted mount/src
@@ -16,8 +17,11 @@ from src.stores.water_levels_store import clear_water_levels_store_cache, load_w
 
 st.set_page_config(page_title="Bonsai Monitor", layout="wide", page_icon="🌲")
 
-page_bg_img = '''
-<style> [data-testid="stAppViewContainer"], .stApp { background-image: url("https://static.vecteezy.com/system/resources/previews/070/871/502/non_2x/bonsai-tree-in-ceramic-pot-on-stone-with-sunlight-outdoor-garden-art-free-photo.jpg"); background-size: cover; background-position: center; background-repeat: no-repeat; } [data-testid="stHeader"], [data-testid="stToolbar"] { background: transparent; } </style>
+wallpaper_path = app_root / "images" / "wallpaper_v2.png"
+wallpaper_b64 = base64.b64encode(wallpaper_path.read_bytes()).decode("utf-8")
+
+page_bg_img = f'''
+<style> [data-testid="stAppViewContainer"], .stApp {{ background-image: url("data:image/png;base64,{wallpaper_b64}"); background-size: cover; background-position: center; background-repeat: no-repeat; }} [data-testid="stHeader"], [data-testid="stToolbar"] {{ background: transparent; }} </style>
 '''
 
 st.markdown(page_bg_img, unsafe_allow_html=True)

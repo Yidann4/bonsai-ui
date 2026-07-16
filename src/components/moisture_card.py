@@ -29,8 +29,8 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
             }
             .metric-icon {
                 font-size: 30px;
-                color: #2f9e44;
-                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+                color: #f1c40f;
+                text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             }
 
             /* Keep the gauge and the text side-by-side at every viewport
@@ -45,7 +45,9 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
             }
             .st-key-opaque-box .stHorizontalBlock .stColumn,
             .st-key-opaque-box div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-                width: 12rem !important;
+                min-width: 12rem !important;
+                width: auto !important;
+                max-width: 50% !important; 
                 flex: 0 0 auto !important;
             }
 
@@ -68,7 +70,16 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
         """
         <style>
         .st-key-opaque-box {
-            background-color: rgba(255, 255, 255, 0.4); /* White with 40% opacity */
+            /* Frosted glass effect */
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.40),  /* bigger difference = more light */
+                rgba(255, 255, 255, 0.08)
+            );
+            backdrop-filter: blur(10px) saturate(120%);
+            -webkit-backdrop-filter: blur(10px) saturate(120%); /* blurring amount, colour gets through amount */
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
             padding: 20px;
             border-radius: 10px;
             display: block;
@@ -80,6 +91,7 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
         unsafe_allow_html=True,
     )
     with st.container(key="opaque-box"):
+        st.text("Live")
         left, right = st.columns([1, 1])
         with left.container():
             moisture_gauge(moisture_percent=moisture_percent, font_size=32, height=CARD_HEIGHT)
