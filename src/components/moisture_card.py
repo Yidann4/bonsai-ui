@@ -6,7 +6,7 @@ except ModuleNotFoundError:
     
 CARD_HEIGHT = "100px"
 
-def moisture_card(moisture_percent: int, last_measured: str):
+def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measured_time: str):
     """Render a moisture card with a gauge and percentage display."""
     st.markdown(
         """
@@ -43,11 +43,11 @@ def moisture_card(moisture_percent: int, last_measured: str):
             <div style="height:{CARD_HEIGHT}; display:flex; flex-direction:column; justify-content:space-evenly;">
                 <span style="font-size:30px; font-weight:600; display:flex; align-items:center; gap:6px;">
                     <span class="material-symbols-outlined metric-icon">water_drop</span>
-                    {moisture_percent}%
+                    {latest_battery_level}%
                 </span>
                 <span style="font-size:30px; font-weight:600; display:flex; align-items:center; gap:6px;">
                     <span class="material-symbols-outlined metric-icon">timer</span>
-                    {last_measured}
+                    {latest_measured_time}
                 </span>
             </div>
             """,
@@ -56,5 +56,5 @@ def moisture_card(moisture_percent: int, last_measured: str):
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Moisture Card Demo")
-    moisture_card(moisture_percent=65, last_measured="test") #"2026-01-01T00:00:00") # ISO 8601 YYYY-MM-DDTHH:MM:SS
+    moisture_card(moisture_percent=65, latest_battery_level=80, latest_measured_time="2026-01-01T00:00:00") #) # ISO 8601 YYYY-MM-DDTHH:MM:SS
 

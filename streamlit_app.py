@@ -19,33 +19,28 @@ import sys
 sys.path.append(".streamlit")
 
 import streamlit as st
-import pandas as pd
 
 
 from config_parser import postgres_conn
-from src.components.vertical_progress_bar import render_vertical_progress_bar
+from src.stores.water_levels_store import clear_water_levels_store_cache, load_water_levels_store
 
 st.set_page_config(page_title="Bonsai Monitor", layout="wide", page_icon="🌲")
 
+STORE_SESSION_KEY = "water_levels_store"
 
+if st.button("Refresh data"):
+    clear_water_levels_store_cache()
+    st.session_state.pop(STORE_SESSION_KEY, None)
 
+if STORE_SESSION_KEY not in st.session_state:
+    st.session_state[STORE_SESSION_KEY] = load_water_levels_store(postgres_conn)
 
+store = st.session_state[STORE_SESSION_KEY]
 
-remoteconn = st.connection(postgres_conn, type="sql")
+from src.components.moisture_card import moisture_card
+moisture_card(store.latest_water_level, store.latest_battery_level, store.latest_measured_time)
 
-# Perform query.
-query = 'SELECT * FROM public.water_levels ORDER BY id DESC LIMIT 100;'
-remote_water_levels = remoteconn.query(query, ttl="0")
-remote_water_levels['aest_time'] = pd.to_datetime(remote_water_levels['inserted_at']).dt.tz_localize('UTC').dt.tz_convert('Australia/Brisbane')
-latest_water_level = remote_water_levels['level'].iloc[0]
-latest_battery_level = remote_water_levels['battery_level'].iloc[0]
+from src.components.levels_chart import levels_chart
+levels_chart(levels_array=store.recent_levels)
 
-
-## line chart
-last_day = pd.Timestamp.now(tz="UTC").tz_convert(None) - pd.Timedelta(days=1)
-recent_water_levels = remote_water_levels[remote_water_levels['inserted_at'] >= last_day]
-st.line_chart(x='aest_time', y=['level', 'battery_level'], data=recent_water_levels, x_label="Time (AEST)", y_label="Level / Battery Level", color=['blue', 'red'])
-
-remote_water_levels
-
-render_vertical_progress_bar(latest_water_level)
+store.all_levels
