@@ -30,6 +30,9 @@ def moisture_gauge(
     """
     ranges = ranges or DEFAULT_RANGES
     detail_offset = detail_offset or [0, "-20%"]
+    
+    # cap_moisture_percent to [0, 100] to avoid rendering issues with ECharts
+    moisture_percent = max(0, min(100, moisture_percent))
 
     value_colour = next(colour for max_v, colour in ranges if moisture_percent / 100 <= max_v)
 
