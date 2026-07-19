@@ -43,8 +43,3 @@ moisture_card(store.latest_water_level, store.latest_battery_level, store.latest
 
 from src.components.levels_chart import levels_chart
 levels_chart(levels_array=store.recent_levels)
-
-from src.components.glass_container import glass_container
-with glass_container(key="all-levels-data"):
-    st.header("All Levels Data")
-    st.write(store.all_levels)

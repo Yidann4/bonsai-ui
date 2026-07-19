@@ -47,7 +47,7 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
             }
             .st-key-live-card .stHorizontalBlock .stColumn,
             .st-key-live-card div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-                min-width: 12rem !important;
+                min-width: 11rem !important;
                 width: auto !important;
                 max-width: 50% !important; 
                 flex: 0 0 auto !important;
