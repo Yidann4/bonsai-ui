@@ -20,7 +20,7 @@ def moisture_gauge(
     detail_offset: list | None = None,  # e.g. [0, "-20%"]
     start_angle: int = 180,
     end_angle: int = 0,
-    radius: str = "150%",
+    radius: str = "120%",
 ):
     """Render a semicircular moisture gauge.
 

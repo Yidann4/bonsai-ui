@@ -39,7 +39,7 @@ store = st.session_state[STORE_SESSION_KEY]
 store = st.session_state[STORE_SESSION_KEY]
 
 from src.components.moisture_card import moisture_card
-moisture_card(store.latest_water_level, store.latest_battery_level, store.latest_measured_time)
+moisture_card(store.latest_water_level, store.latest_battery_level, store.latest_measured_time, store.latest_watered_time)
 
 from src.components.levels_chart import levels_chart
 levels_chart(levels_array=store.recent_levels)
