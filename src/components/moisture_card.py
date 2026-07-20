@@ -22,35 +22,10 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
     st.markdown(
         """
         <style>
-            .st-key-live-card div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div:has(.stEcharts) {
-                margin-bottom: 0 !important;
-            }
-            .st-key-live-card .stEcharts {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
             .metric-icon {
                 font-size: 30px;
                 color: #f1c40f;
                 text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            }
-
-            /* Keep the gauge and the text side-by-side at every viewport
-               width. Streamlit's stHorizontalBlock switches to a vertical
-               stack below its mobile breakpoint (~640px) by default; this
-               forces it to stay a row. */
-            .st-key-live-card div[data-testid="stHorizontalBlock"] {
-                flex-wrap: nowrap !important;
-                align-items: center;
-                width: auto !important;
-                display: inline-flex !important;
-            }
-            .st-key-live-card .stHorizontalBlock .stColumn,
-            .st-key-live-card div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-                min-width: 11rem !important;
-                width: auto !important;
-                max-width: 50% !important; 
-                flex: 0 0 auto !important;
             }
 
             .st-key-live-card {
@@ -70,25 +45,25 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
 
     with glass_container(key="live-card"):
         st.text("Live")
-        left, right = st.columns([1, 1])
-        with left.container():
-            moisture_gauge(moisture_percent=moisture_percent, font_size=32, height=CARD_HEIGHT)
-        with right.container():
-            st.markdown(
-                f"""
-                <div style="height:{CARD_HEIGHT}; display:flex; flex-direction:column; justify-content:space-evenly;">
-                    <span style="font-size:clamp(16px, 5vw, 30px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
-                        <span class="material-symbols-outlined metric-icon">battery_change</span>
-                        {latest_battery_level}%
-                    </span>
-                    <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
-                        <span class="material-symbols-outlined metric-icon">timer</span>
-                        {latest_measured_time}
-                    </span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        with st.container(key="live-card-content", horizontal=True):
+            with st.container(key="moisture-gauge"):
+                moisture_gauge(moisture_percent=moisture_percent, font_size=32, height=CARD_HEIGHT)
+            with st.container(key="metrics"):
+                st.markdown(
+                    f"""
+                    <div style="height:{CARD_HEIGHT}; display:flex; flex-direction:column; justify-content:space-evenly;">
+                        <span style="font-size:clamp(16px, 5vw, 30px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                            <span class="material-symbols-outlined metric-icon">battery_change</span>
+                            {latest_battery_level}%
+                        </span>
+                        <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                            <span class="material-symbols-outlined metric-icon">timer</span>
+                            {latest_measured_time}
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
 
 if __name__ == "__main__":
