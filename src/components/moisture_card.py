@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 CARD_HEIGHT = "150px"
 
 
-def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measured_time: str, latest_watered_time: str):
+def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measured_time: str, latest_watered_time: str, latest_bucket_stocked: bool) -> None:
     """Render a moisture card with a gauge and percentage display."""
     st.markdown(
         """
@@ -52,17 +52,21 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
                 st.markdown(
                     f"""
                     <div style="height:{CARD_HEIGHT}; display:flex; flex-direction:column; justify-content:space-evenly;">
-                        <span style="font-size:clamp(16px, 5vw, 30px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                        <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
                             <span class="material-symbols-outlined metric-icon">battery_change</span>
                             {latest_battery_level}%
                         </span>
                         <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
-                            <span class="material-symbols-outlined metric-icon">water_drop</span>
+                            <span class="material-symbols-outlined metric-icon">water_drops</span>
                             {latest_watered_time}
                         </span>
                         <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
                             <span class="material-symbols-outlined metric-icon">timer</span>
                             {latest_measured_time}
+                        </span>
+                        <span style="font-size:clamp(14px, 4vw, 24px); font-weight:600; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                            <span class="material-symbols-outlined metric-icon">water_full</span>
+                            {latest_bucket_stocked}
                         </span>
                     </div>
                     """,
@@ -72,4 +76,4 @@ def moisture_card(moisture_percent: int, latest_battery_level: int, latest_measu
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Moisture Card Demo")
-    moisture_card(moisture_percent=65, latest_battery_level=80, latest_measured_time="2026-01-01T00:00:00", latest_watered_time="2026-01-01T00:00:00")  # ISO 8601 YYYY-MM-DDTHH:MM:SS
+    moisture_card(moisture_percent=65, latest_battery_level=80, latest_measured_time="2026-01-01T00:00:00", latest_watered_time="2026-01-01T00:00:00", latest_bucket_stocked=False)  # ISO 8601 YYYY-MM-DDTHH:MM:SS

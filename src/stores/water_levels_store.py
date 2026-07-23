@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 
 import pandas as pd
 import streamlit as st
@@ -12,6 +13,8 @@ POSTGRES_CONN_KEY = "postgres_conn"
 LOOKBACK_KEY = "lookback_period"
 INITIALIZED_KEY = "water_levels_initialized"
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass(frozen=True)
 class WaterLevelsStoreState:
@@ -21,6 +24,22 @@ class WaterLevelsStoreState:
     latest_battery_level: float
     latest_measured_time: str
     latest_watered_time: str
+    latest_bucket_stocked: str
+
+
+def _empty_levels_frame() -> pd.DataFrame:
+    # Keep expected chart/store columns present even when DB is unavailable.
+    return pd.DataFrame(
+        columns=[
+            "id",
+            "level",
+            "battery_level",
+            "has_watered",
+            "inserted_at",
+            "updated_at",
+            "aest_time",
+        ]
+    )
 
 
 def _build_query() -> str:
@@ -70,7 +89,12 @@ def load_water_levels_store(
     
     """Derives the view (recent_levels/latest_*) from the cached fetch.
     This part is cheap and always recomputed against the real 'now'."""
-    all_levels = _fetch_all_levels_cached(postgres_connection_name, ttl=ttl)
+    try:
+        all_levels = _fetch_all_levels_cached(postgres_connection_name, ttl=ttl)
+    except Exception as exc:
+        logger.exception("Failed to fetch water levels from database", exc_info=exc)
+        st.warning("Database is unavailable right now. Showing empty data until connection is restored.")
+        all_levels = _empty_levels_frame()
     
     st.session_state[POSTGRES_CONN_KEY] = postgres_connection_name
 
@@ -82,12 +106,12 @@ def load_water_levels_store(
             latest_battery_level=0.0,
             latest_measured_time="N/A",
             latest_watered_time="N/A",
+            latest_bucket_stocked="N/A",
         )
 
 
     cutoff = pd.Timestamp.now(tz="UTC") - calculated_lookback
     
-    print(cutoff)
     recent_levels = all_levels[all_levels["inserted_at"] >= cutoff].sort_values("inserted_at")
     
     latest_row = all_levels.iloc[0]
@@ -96,6 +120,8 @@ def load_water_levels_store(
     latest_has_watered_row = all_levels[all_levels["has_watered"] == True].iloc[0] if not all_levels[all_levels["has_watered"] == True].empty else None
     formatted_latest_water_time = latest_has_watered_row["aest_time"].strftime("%d %b %H:%M:%S") if latest_has_watered_row is not None else "N/A"
 
+    formatted_latest_bucket_stocked = latest_row["bucket_stocked"] if "bucket_stocked" in latest_row else "N/A"
+        
     return WaterLevelsStoreState(
         all_levels=all_levels,
         recent_levels=recent_levels,
@@ -103,6 +129,7 @@ def load_water_levels_store(
         latest_battery_level=float(latest_row["battery_level"]),
         latest_measured_time=formatted_latest_time,
         latest_watered_time=formatted_latest_water_time,
+        latest_bucket_stocked=formatted_latest_bucket_stocked,
     )
 
 

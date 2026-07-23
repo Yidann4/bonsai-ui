@@ -38,7 +38,7 @@ if st.button("Refresh data"):
     st.rerun()
 
 from src.components.moisture_card import moisture_card
-moisture_card(store.latest_water_level, store.latest_battery_level, store.latest_measured_time, store.latest_watered_time)
+moisture_card(store.latest_water_level, store.latest_battery_level, store.latest_measured_time, store.latest_watered_time, store.latest_bucket_stocked)
 
 from src.components.levels_chart import levels_chart
 levels_chart(levels_array=store.recent_levels)
