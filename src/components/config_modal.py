@@ -2,9 +2,10 @@ import streamlit as st
 
 try:
     from src.stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values
+    from src.stores.user_store import check_user_edit_permissions
 except ModuleNotFoundError:
     from stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values
-
+    from stores.user_store import check_user_edit_permissions
 
 def config_modal(
     open: bool = False,
@@ -13,7 +14,7 @@ def config_modal(
     if not open:
         return
 
-    config_modal_body(can_edit=True)
+    config_modal_body(can_edit=check_user_edit_permissions())
 
     
 def water_max_mins_config(configs: ConfigStoreState, can_edit: bool = False):

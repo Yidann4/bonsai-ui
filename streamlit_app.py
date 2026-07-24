@@ -16,7 +16,7 @@ from config_parser import postgres_conn
 from src.stores.water_levels_store import clear_water_levels_store_cache, load_water_levels_store
 from src.components.config_modal import config_modal
 
-from src.stores.user_store import fetch_users
+from src.stores.user_store import fetch_users, set_signed_in_user
 fetch_users()
 
 st.set_page_config(page_title="Bonsai Monitor", layout="wide", page_icon="🌲")
@@ -36,8 +36,7 @@ st.session_state["postgres_connection_name"] = postgres_conn
 st.session_state[STORE_SESSION_KEY] = load_water_levels_store()
 store = st.session_state[STORE_SESSION_KEY]
 
-with st.container(horizontal=True, horizontal_alignment="left"):
-    st.text_input("user", value=st.session_state["user"])
+with st.container(horizontal=True, horizontal_alignment="left", vertical_alignment="bottom"):
     if st.button("Refresh data"):
         with st.spinner("Refreshing data..."):
             clear_water_levels_store_cache()
@@ -45,6 +44,15 @@ with st.container(horizontal=True, horizontal_alignment="left"):
         st.rerun()
 
     open_config_modal = st.button("Open config modal")
+    
+    st.text_input(
+        "username",
+        max_chars=20,
+        key="username_input",
+        on_change=set_signed_in_user,
+        type="password",
+        width=300,
+    )    
     
 config_modal(open=open_config_modal)
 
