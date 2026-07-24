@@ -33,13 +33,16 @@ st.session_state["postgres_connection_name"] = postgres_conn
 st.session_state[STORE_SESSION_KEY] = load_water_levels_store()
 store = st.session_state[STORE_SESSION_KEY]
 
-if st.button("Refresh data"):
-    with st.spinner("Refreshing data..."):
-        clear_water_levels_store_cache()
-        st.session_state.pop(STORE_SESSION_KEY, None)
-    st.rerun()
+with st.container(horizontal=True, horizontal_alignment="left"):
 
-open_config_modal = st.button("Open config modal")
+    if st.button("Refresh data"):
+        with st.spinner("Refreshing data..."):
+            clear_water_levels_store_cache()
+            st.session_state.pop(STORE_SESSION_KEY, None)
+        st.rerun()
+
+    open_config_modal = st.button("Open config modal")
+    
 config_modal(open=open_config_modal)
 
 from src.components.moisture_card import moisture_card

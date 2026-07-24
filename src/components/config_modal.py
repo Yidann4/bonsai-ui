@@ -36,48 +36,48 @@ def config_modal(
     )
     
 def water_max_mins_config(configs: ConfigStoreState, can_edit: bool = False):
-    left, right = st.columns([1, 1])
-    with left:
-        st.subheader("Minimums")
-        st.number_input(
-            "min_water_level",
-            min_value=0,
-            value=configs.min_water_level,
-            step=1,
-            format="%d",
-            key="min_water_level",
-            disabled=not can_edit,
-        )
-        st.number_input(
-            "min_battery_level",
-            min_value=0,
-            value=configs.min_battery_level,
-            step=1,
-            format="%d",
-            key="min_battery_level",
-            disabled=not can_edit,
-        )
+    with st.container(horizontal=True):
+        with st.container(horizontal=False):
+            st.subheader("Minimums")
+            st.number_input(
+                "min_water_level",
+                min_value=0,
+                value=configs.min_water_level,
+                step=1,
+                format="%d",
+                key="min_water_level",
+                disabled=not can_edit,
+            )
+            st.number_input(
+                "min_battery_level",
+                min_value=0,
+                value=configs.min_battery_level,
+                step=1,
+                format="%d",
+                key="min_battery_level",
+                disabled=not can_edit,
+            )
 
-    with right:
-        st.subheader("Maximums")
-        st.number_input(
-            "max_water_level",
-            min_value=0,
-            value=configs.max_water_level,
-            step=1,
-            format="%d",
-            key="max_water_level",
-            disabled=not can_edit,
-        )
-        st.number_input(
-            "max_battery_level",
-            min_value=0,
-            value=configs.max_battery_level,
-            step=1,
-            format="%d",
-            key="max_battery_level",
-            disabled=not can_edit,
-        )
+        with st.container(horizontal=False):
+            st.subheader("Maximums")
+            st.number_input(
+                "max_water_level",
+                min_value=0,
+                value=configs.max_water_level,
+                step=1,
+                format="%d",
+                key="max_water_level",
+                disabled=not can_edit,
+            )
+            st.number_input(
+                "max_battery_level",
+                min_value=0,
+                value=configs.max_battery_level,
+                step=1,
+                format="%d",
+                key="max_battery_level",
+                disabled=not can_edit,
+            )
 
 def watering_timings_config(configs: ConfigStoreState, can_edit: bool = False):
     st.subheader("Watering Timings")

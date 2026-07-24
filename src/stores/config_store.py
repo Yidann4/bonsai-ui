@@ -64,9 +64,7 @@ def fetch_db_config_values() -> None:
             return
 
         st.session_state[KEY_ALL_CONFIGS] = payload
-        
-        print(f"Fetched config values from API: {payload}")
-        
+                
         for key in _default_config_values():
             value = payload.get(key)
             if value is not None:
@@ -77,13 +75,10 @@ def fetch_db_config_values() -> None:
     except (TypeError, ValueError) as e:
         print(f"Invalid config values returned by API: {e}")   
         
-def load_configs_from_state() -> None:
-    print(f"Cancel received with all_configs: {st.session_state.get(KEY_ALL_CONFIGS)}")
-    
+def load_configs_from_state() -> None:    
     for key in _default_config_values():
         all_configs = st.session_state.get(KEY_ALL_CONFIGS, {})
         value = all_configs.get(key)
-        print(f"Key: {key}, Value: {value}")
         if value is not None:
             st.session_state[key] = int(value)
         
