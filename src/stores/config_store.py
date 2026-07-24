@@ -9,10 +9,14 @@ DEFAULT_MIN_WATER_LEVEL = 20
 DEFAULT_MIN_BATTERY_LEVEL = 20
 DEFAULT_MAX_WATER_LEVEL = 100
 DEFAULT_MAX_BATTERY_LEVEL = 100
+
+DEFAULT_WATERING_LEVEL_START = 30
+DEFAULT_WATERING_LEVEL_END = 80
 DEFAULT_WATER_BURST_TIME = 30
 DEFAULT_WATER_SETTLING_TIME = 30
+
 DEFAULT_DEEPSLEEP_TIME = 15 * 60
-DEFAULT_MAX_ALIVE_TIME = 5 * 60 * 1000
+DEFAULT_MAX_ALIVE_TIME = 5 * 60
 
 KEY_ALL_CONFIGS = "all_configs"
 
@@ -22,6 +26,8 @@ class ConfigStoreState:
     min_battery_level: int
     max_water_level: int
     max_battery_level: int
+    watering_level_start: int
+    watering_level_end: int
     water_burst_time: int
     water_settling_time: int
     deepsleep_time: int
@@ -34,6 +40,8 @@ def _default_config_values() -> dict[str, int]:
         "min_battery_level": DEFAULT_MIN_BATTERY_LEVEL,
         "max_water_level": DEFAULT_MAX_WATER_LEVEL,
         "max_battery_level": DEFAULT_MAX_BATTERY_LEVEL,
+        "watering_level_start": DEFAULT_WATERING_LEVEL_START,
+        "watering_level_end": DEFAULT_WATERING_LEVEL_END,
         "water_burst_time": DEFAULT_WATER_BURST_TIME,
         "water_settling_time": DEFAULT_WATER_SETTLING_TIME,
         "deepsleep_time": DEFAULT_DEEPSLEEP_TIME,
@@ -90,6 +98,8 @@ def load_config_store() -> ConfigStoreState:
         min_battery_level=int(st.session_state["min_battery_level"]),
         max_water_level=int(st.session_state["max_water_level"]),
         max_battery_level=int(st.session_state["max_battery_level"]),
+        watering_level_start=int(st.session_state["watering_level_start"]),
+        watering_level_end=int(st.session_state["watering_level_end"]),
         water_burst_time=int(st.session_state["water_burst_time"]),
         water_settling_time=int(st.session_state["water_settling_time"]),
         deepsleep_time=int(st.session_state["deepsleep_time"]),

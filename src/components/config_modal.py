@@ -1,44 +1,26 @@
 import streamlit as st
 
 try:
-    from src.components.fullscreen_modal import render_fullscreen_modal
-except ModuleNotFoundError:
-    from fullscreen_modal import render_fullscreen_modal
-
-try:
     from src.stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values, load_configs_from_state
 except ModuleNotFoundError:
     from stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values, load_configs_from_state
 
 
 def config_modal(
-    *,
     open: bool = False,
-    title: str = "Bonsai Configs",
-    state_key: str = "config_modal_open",
-    key: str = "config-modal",
 ) -> None:
-    """Open and/or render the config modal in one call.
 
-    Use `open=True` on the run where a trigger is clicked, and call this
-    function once per rerun from your app layout.
-    """
-    if open:
-        st.session_state[state_key] = True
+    if not open:
+        return
 
-    modal_body = config_modal_body
+    config_modal_body(can_edit=True)
 
-    render_fullscreen_modal(
-        body=modal_body,
-        title=title,
-        state_key=state_key,
-        key=key,
-    )
     
 def water_max_mins_config(configs: ConfigStoreState, can_edit: bool = False):
+    st.subheader("ADC Ranges")
     with st.container(horizontal=True):
         with st.container(horizontal=False):
-            st.subheader("Minimums")
+            st.markdown("Minimums")
             st.number_input(
                 "min_water_level",
                 min_value=0,
@@ -59,7 +41,7 @@ def water_max_mins_config(configs: ConfigStoreState, can_edit: bool = False):
             )
 
         with st.container(horizontal=False):
-            st.subheader("Maximums")
+            st.markdown("Maximums")
             st.number_input(
                 "max_water_level",
                 min_value=0,
@@ -102,6 +84,27 @@ def watering_timings_config(configs: ConfigStoreState, can_edit: bool = False):
             disabled=not can_edit,
         )
     
+    with st.container(horizontal=True):
+        st.number_input(
+            "Watering Level Start (ADC)",
+            min_value=0,
+            value=configs.watering_level_start,
+            step=1,
+            format="%d",
+            key="watering_level_start",
+            disabled=not can_edit,
+        )
+        
+        st.number_input(
+            "Watering Level End (ADC)",
+            min_value=0,
+            value=configs.watering_level_end,
+            step=1,
+            format="%d",
+            key="watering_level_end",
+            disabled=not can_edit,
+        )
+    
 def esp32_sleep_timings_config(configs: ConfigStoreState, can_edit: bool = False):
     st.subheader("ESP32 Sleep Timings")
     with st.container(horizontal=True):
@@ -125,6 +128,7 @@ def esp32_sleep_timings_config(configs: ConfigStoreState, can_edit: bool = False
             disabled=not can_edit,
         )
         
+@st.dialog("Bonsai Configs", width="large")
 def config_modal_body(can_edit: bool = True):
     configs = load_config_store()
     
