@@ -6,9 +6,9 @@ except ModuleNotFoundError:
     from fullscreen_modal import render_fullscreen_modal
 
 try:
-    from src.stores.config_store import ConfigStoreState, load_config_store
+    from src.stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values, load_configs_from_state
 except ModuleNotFoundError:
-    from stores.config_store import ConfigStoreState, load_config_store
+    from stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values, load_configs_from_state
 
 
 def config_modal(
@@ -116,17 +116,22 @@ def esp32_sleep_timings_config(configs: ConfigStoreState, can_edit: bool = False
         )
         
         st.number_input(
-            "Maximum Alive Time (ms)",
+            "Max Alive Time (ms)",
             min_value=0,
-            value=configs.maximum_alive_time,
+            value=configs.max_alive_time,
             step=1,
             format="%d",
-            key="maximum_alive_time",
+            key="max_alive_time",
             disabled=not can_edit,
         )
         
 def config_modal_body(can_edit: bool = True):
     configs = load_config_store()
+    
+    with st.container(horizontal=True):
+        st.button("Save Configs", on_click=push_config_updates, disabled=not can_edit)
+        st.button("Reset to Defaults", on_click=set_store_default_values, disabled=not can_edit)
+        st.button("Cancel", on_click=load_configs_from_state, disabled=not can_edit)
 
     watering_timings_config(configs=configs, can_edit=can_edit)
 
