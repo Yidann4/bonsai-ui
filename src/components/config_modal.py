@@ -1,9 +1,9 @@
 import streamlit as st
 
 try:
-    from src.stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values, load_configs_from_state
+    from src.stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values
 except ModuleNotFoundError:
-    from stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values, load_configs_from_state
+    from stores.config_store import ConfigStoreState, load_config_store, push_config_updates, set_store_default_values
 
 
 def config_modal(
@@ -135,7 +135,7 @@ def config_modal_body(can_edit: bool = True):
     with st.container(horizontal=True):
         st.button("Save Configs", on_click=push_config_updates, disabled=not can_edit)
         st.button("Reset to Defaults", on_click=set_store_default_values, disabled=not can_edit)
-        st.button("Cancel", on_click=load_configs_from_state, disabled=not can_edit)
+        st.button("Cancel", on_click=load_config_store, disabled=not can_edit)
 
     watering_timings_config(configs=configs, can_edit=can_edit)
 
