@@ -18,6 +18,7 @@ DEFAULT_WATER_SETTLING_TIME = 5
 DEFAULT_DEEPSLEEP_TIME = 15 * 60
 DEFAULT_MAX_ALIVE_TIME = 5 * 60
 
+KEY_HAS_LOADED = "has_loaded_config_store"
 KEY_ALL_CONFIGS = "all_configs"
 
 @dataclass(frozen=True)
@@ -45,6 +46,20 @@ def set_state_from_config_store(configs: ConfigStoreState) -> None:
     st.session_state["deepsleep_time"] = configs.deepsleep_time
     st.session_state["max_alive_time"] = configs.max_alive_time
     return None
+
+def config_object_from_state() -> ConfigStoreState:
+    return ConfigStoreState(
+        min_water_level=st.session_state.get("min_water_level", DEFAULT_MIN_WATER_LEVEL),
+        min_battery_level=st.session_state.get("min_battery_level", DEFAULT_MIN_BATTERY_LEVEL),
+        max_water_level=st.session_state.get("max_water_level", DEFAULT_MAX_WATER_LEVEL),
+        max_battery_level=st.session_state.get("max_battery_level", DEFAULT_MAX_BATTERY_LEVEL),
+        watering_level_start=st.session_state.get("watering_level_start", DEFAULT_WATERING_LEVEL_START),
+        watering_level_end=st.session_state.get("watering_level_end", DEFAULT_WATERING_LEVEL_END),
+        water_burst_time=st.session_state.get("water_burst_time", DEFAULT_WATER_BURST_TIME),
+        water_settling_time=st.session_state.get("water_settling_time", DEFAULT_WATER_SETTLING_TIME),
+        deepsleep_time=st.session_state.get("deepsleep_time", DEFAULT_DEEPSLEEP_TIME),
+        max_alive_time=st.session_state.get("max_alive_time", DEFAULT_MAX_ALIVE_TIME),
+    )
 
 def _default_config_values() -> ConfigStoreState:
     return ConfigStoreState(
@@ -104,8 +119,14 @@ def fetch_db_config_values() -> ConfigStoreState:
 
 def load_config_store() -> ConfigStoreState:
     """Sets config values in session state from the remote API."""
-    configs = fetch_db_config_values()
-    set_state_from_config_store(configs)
+    
+    if st.session_state.get(KEY_HAS_LOADED, False):
+        configs = config_object_from_state()
+    else:
+        st.session_state[KEY_HAS_LOADED] = True
+        configs = fetch_db_config_values()
+        set_state_from_config_store(configs)
+        
     return configs
     
 def push_config_updates() -> None:
@@ -113,13 +134,19 @@ def push_config_updates() -> None:
     base_url = st.secrets.get("remote_api_url", "")
     url = f"{base_url}/update_params"
 
-    payload = {key: st.session_state[key] for key in _default_config_values()}
+    payload = {
+        key: st.session_state[key]
+        for key in ConfigStoreState.__dataclass_fields__
+    }
 
     try:
         response = requests.post(url, json=payload, timeout=10)
         response.raise_for_status()
         # Keep cancel restore source in sync with latest persisted values.
         st.session_state[KEY_ALL_CONFIGS] = payload
+        
+        # cause cached db query to reload next time it's called, so that the latest values are fetched from the API
+        fetch_db_config_values.clear()
         print("Config values successfully pushed to API.")
     except requests.RequestException as e:
         print(f"Error pushing config values to API: {e}")

@@ -16,6 +16,9 @@ from config_parser import postgres_conn
 from src.stores.water_levels_store import clear_water_levels_store_cache, load_water_levels_store
 from src.components.config_modal import config_modal
 
+from src.stores.user_store import fetch_users
+fetch_users()
+
 st.set_page_config(page_title="Bonsai Monitor", layout="wide", page_icon="🌲")
 
 wallpaper_path = app_root / "images" / "wallpaper_v2.png"
@@ -34,7 +37,7 @@ st.session_state[STORE_SESSION_KEY] = load_water_levels_store()
 store = st.session_state[STORE_SESSION_KEY]
 
 with st.container(horizontal=True, horizontal_alignment="left"):
-
+    st.text_input("user", value=st.session_state["user"])
     if st.button("Refresh data"):
         with st.spinner("Refreshing data..."):
             clear_water_levels_store_cache()

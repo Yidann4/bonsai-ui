@@ -133,7 +133,10 @@ def config_modal_body(can_edit: bool = True):
     configs = load_config_store()
     
     with st.container(horizontal=True):
-        st.button("Save Configs", on_click=push_config_updates, disabled=not can_edit)
+        if st.button("Save Configs", disabled=not can_edit):
+            with st.spinner("Saving..."):
+                push_config_updates()
+            st.rerun()
         st.button("Reset to Defaults", on_click=set_store_default_values, disabled=not can_edit)
         st.button("Cancel", on_click=load_config_store, disabled=not can_edit)
 
