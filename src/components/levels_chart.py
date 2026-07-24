@@ -47,9 +47,8 @@ if __name__ == "__main__":
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / ".streamlit"))
-    from config_parser import postgres_conn
     from stores.water_levels_store import load_water_levels_store
-    store_obj = load_water_levels_store(postgres_conn)
+    store_obj = load_water_levels_store()
     
     st.set_page_config(page_title="Levels Chart Demo")
     st.markdown("# Levels Chart Demo")
