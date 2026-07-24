@@ -9,7 +9,6 @@ import streamlit as st
 CONF_DEFAULT_LOOKBACK_PERIOD = pd.Timedelta(days=1)
 CONF_MAX_FETCH_COUNT = 7200  # 24 * 10 * 30 (30 days)
 
-POSTGRES_CONN_KEY = "postgres_conn"
 LOOKBACK_KEY = "lookback_period"
 INITIALIZED_KEY = "water_levels_initialized"
 
@@ -53,15 +52,14 @@ def _prepare_levels_frame(levels: pd.DataFrame) -> pd.DataFrame:
     prepared["aest_time"] = prepared["inserted_at"].dt.tz_convert("Australia/Brisbane")
     return prepared
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=True, ttl=60)
 def _fetch_all_levels_cached(
-    postgres_connection_name: str,
     *,
     ttl: str = "0",
 ) -> pd.DataFrame:
     """DB fetch only. Cache key depends solely on connection + ttl,
     so changing `lookback` never triggers a re-query."""
-    connection = st.connection(postgres_connection_name, type="sql")
+    connection = st.connection(st.session_state["postgres_connection_name"], type="sql")
     raw_levels = connection.query(_build_query(), ttl=ttl)
 
     if raw_levels.empty:
@@ -71,7 +69,6 @@ def _fetch_all_levels_cached(
 
 
 def load_water_levels_store(
-    postgres_connection_name: str,
     *,
     lookback: pd.Timedelta = None,
     ttl: str = "0",
@@ -90,14 +87,12 @@ def load_water_levels_store(
     """Derives the view (recent_levels/latest_*) from the cached fetch.
     This part is cheap and always recomputed against the real 'now'."""
     try:
-        all_levels = _fetch_all_levels_cached(postgres_connection_name, ttl=ttl)
+        all_levels = _fetch_all_levels_cached(ttl=ttl)
     except Exception as exc:
         logger.exception("Failed to fetch water levels from database", exc_info=exc)
         st.warning("Database is unavailable right now. Showing empty data until connection is restored.")
         all_levels = _empty_levels_frame()
     
-    st.session_state[POSTGRES_CONN_KEY] = postgres_connection_name
-
     if all_levels.empty:
         return WaterLevelsStoreState(
             all_levels=all_levels,
