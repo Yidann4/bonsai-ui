@@ -12,7 +12,6 @@ sys.path.append(".streamlit")
 import streamlit as st
 
 
-from config_parser import postgres_conn
 from src.stores.water_levels_store import clear_water_levels_store_cache, load_water_levels_store
 from src.components.config_modal import config_modal
 
@@ -31,7 +30,6 @@ page_bg_img = f'''
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 STORE_SESSION_KEY = "water_levels_store"
-st.session_state["postgres_connection_name"] = postgres_conn
 
 st.session_state[STORE_SESSION_KEY] = load_water_levels_store()
 store = st.session_state[STORE_SESSION_KEY]

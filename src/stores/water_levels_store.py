@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import logging
 
 import pandas as pd
+import requests
 import streamlit as st
 
 CONF_DEFAULT_LOOKBACK_PERIOD = pd.Timedelta(days=1)
@@ -40,11 +41,6 @@ def _empty_levels_frame() -> pd.DataFrame:
         ]
     )
 
-
-def _build_query() -> str:
-    return f"SELECT * FROM public.water_levels ORDER BY id DESC LIMIT {CONF_MAX_FETCH_COUNT};"
-
-
 def _prepare_levels_frame(levels: pd.DataFrame) -> pd.DataFrame:
     prepared = levels.copy()
     prepared["inserted_at"] = pd.to_datetime(prepared["inserted_at"], utc=True)
@@ -53,25 +49,36 @@ def _prepare_levels_frame(levels: pd.DataFrame) -> pd.DataFrame:
     return prepared
 
 @st.cache_data(show_spinner=True, ttl=60)
-def _fetch_all_levels_cached(
-    *,
-    ttl: str = "0",
-) -> pd.DataFrame:
+def _fetch_all_levels_cached() -> pd.DataFrame:
     """DB fetch only. Cache key depends solely on connection + ttl,
     so changing `lookback` never triggers a re-query."""
-    connection = st.connection(st.session_state["postgres_connection_name"], type="sql")
-    raw_levels = connection.query(_build_query(), ttl=ttl)
+    
+    url = st.secrets.get("remote_api_url", "")
+    url = f"{url}/fetch_water_levels" if url else ""
 
-    if raw_levels.empty:
-        return raw_levels
+    if not url:
+        return None
 
-    return _prepare_levels_frame(raw_levels)
-
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        payload = response.json()
+    
+        raw_levels = pd.DataFrame(payload)
+        
+        if raw_levels.empty:
+            return raw_levels
+        
+        return _prepare_levels_frame(raw_levels)
+            
+    except requests.RequestException:
+        return None
+    except ValueError:
+        return None
 
 def load_water_levels_store(
     *,
     lookback: pd.Timedelta = None,
-    ttl: str = "0",
 ) -> WaterLevelsStoreState:
     
     # if its first time loading the store, clear the cache to ensure we have the latest data
@@ -87,10 +94,13 @@ def load_water_levels_store(
     """Derives the view (recent_levels/latest_*) from the cached fetch.
     This part is cheap and always recomputed against the real 'now'."""
     try:
-        all_levels = _fetch_all_levels_cached(ttl=ttl)
+        all_levels = _fetch_all_levels_cached()
     except Exception as exc:
         logger.exception("Failed to fetch water levels from database", exc_info=exc)
         st.warning("Database is unavailable right now. Showing empty data until connection is restored.")
+        all_levels = _empty_levels_frame()
+
+    if all_levels is None:
         all_levels = _empty_levels_frame()
     
     if all_levels.empty:
@@ -104,6 +114,7 @@ def load_water_levels_store(
             latest_bucket_stocked="N/A",
         )
 
+    print(all_levels.head())
 
     cutoff = pd.Timestamp.now(tz="UTC") - calculated_lookback
     
