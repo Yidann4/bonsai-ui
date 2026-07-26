@@ -23,6 +23,12 @@ def _cycle_lookback_period() -> None:
 
 
 def levels_chart(levels_array: pd.DataFrame):
+    tooltip_fields = [
+        alt.Tooltip("id:N", title="ID"),
+        alt.Tooltip("level:Q", title="Level"),
+        alt.Tooltip("battery_level:Q", title="Battery Level"),
+    ]
+
     level_chart = (
         alt.Chart(levels_array)
         .mark_area(opacity=0.45)
@@ -30,7 +36,7 @@ def levels_chart(levels_array: pd.DataFrame):
             x=alt.X("aest_time:T", title="Time"),
             y=alt.Y("level:Q", title="Level"),
             color=alt.value("#2E8B57"),
-            tooltip=["id", "level", "battery_level"],
+            tooltip=tooltip_fields,
         )
     )
 
@@ -41,7 +47,7 @@ def levels_chart(levels_array: pd.DataFrame):
             x=alt.X("aest_time:T", title="Time"),
             y=alt.Y("battery_level:Q", title="Battery Level"),
             color=alt.value("#D9534F"),
-            tooltip=["id", "level", "battery_level"],
+            tooltip=tooltip_fields,
         )
     )
 
@@ -62,7 +68,7 @@ def levels_chart(levels_array: pd.DataFrame):
                     on_click=_cycle_lookback_period,
                     help="Toggle between Daily, Weekly, and Monthly",
                 )
-        st.altair_chart(combined_chart, use_container_width=True)
+        st.altair_chart(combined_chart, width='stretch')
     
     
 if __name__ == "__main__":

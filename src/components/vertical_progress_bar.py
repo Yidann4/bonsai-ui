@@ -24,5 +24,5 @@ def render_vertical_progress_bar(
     ax.set_ylim(0, 1)
     ax.axis("off")
     ax.text(0.5, 1.02, f"{value:.1f}%", ha="center", va="bottom", fontsize=7)
-    st.pyplot(fig, use_container_width=False)
+    st.pyplot(fig, width=False)
     plt.close(fig)

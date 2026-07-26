@@ -114,8 +114,6 @@ def load_water_levels_store(
             latest_bucket_stocked="N/A",
         )
 
-    print(all_levels.head())
-
     cutoff = pd.Timestamp.now(tz="UTC") - calculated_lookback
     
     recent_levels = all_levels[all_levels["inserted_at"] >= cutoff].sort_values("inserted_at")
