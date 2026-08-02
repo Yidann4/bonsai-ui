@@ -35,7 +35,7 @@ def levels_chart(levels_array: pd.DataFrame):
         .encode(
             x=alt.X("aest_time:T", title="Time"),
             y=alt.Y("normalised_level:Q", title="Level", scale=alt.Scale(domain=[0, 100])),
-            color=alt.value("#2E8B57"),
+            color=alt.value("#3EB4EB"),
             tooltip=tooltip_fields,
         )
     )
@@ -51,7 +51,21 @@ def levels_chart(levels_array: pd.DataFrame):
         )
     )
 
-    combined_chart = alt.layer(level_chart, battery_chart)
+    # Material-style water drop path used for watered event markers.
+    water_drop_svg_path = "M12 2C12 2 5 9.57 5 14a7 7 0 0 0 14 0c0-4.43-7-12-7-12z"
+
+    watered_events_chart = (
+        alt.Chart(levels_array)
+        .transform_filter(alt.datum.has_watered)
+        .mark_point(shape=water_drop_svg_path, size=10, filled=True, color="#2ecc71")
+        .encode(
+            x=alt.X("aest_time:T", title="Time"),
+            y=alt.Y("normalised_level:Q", title="Level", scale=alt.Scale(domain=[0, 100])),
+            tooltip=tooltip_fields,
+        )
+    )
+
+    combined_chart = alt.layer(level_chart, battery_chart, watered_events_chart)
     if "lookback_toggle_index" not in st.session_state:
         st.session_state["lookback_toggle_index"] = 0
 
