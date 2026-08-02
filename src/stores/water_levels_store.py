@@ -7,6 +7,11 @@ import pandas as pd
 import requests
 import streamlit as st
 
+try:
+    from src.stores.config_store import config_object_from_state
+except ModuleNotFoundError:
+    from stores.config_store import config_object_from_state
+
 CONF_DEFAULT_LOOKBACK_PERIOD = pd.Timedelta(days=1)
 CONF_MAX_FETCH_COUNT = 7200  # 24 * 10 * 30 (30 days)
 
@@ -22,9 +27,9 @@ class WaterLevelsStoreState:
     recent_levels: pd.DataFrame  # based on lookback
     latest_water_level: float
     latest_battery_level: float
-    latest_measured_time: str
-    latest_watered_time: str
-    latest_bucket_stocked: str
+    latest_measured_time: pd.Timestamp | None
+    latest_watered_time: pd.Timestamp | None
+    latest_bucket_stocked: bool | None
 
 
 def _empty_levels_frame() -> pd.DataFrame:
@@ -48,6 +53,31 @@ def _prepare_levels_frame(levels: pd.DataFrame) -> pd.DataFrame:
     prepared["aest_time"] = prepared["inserted_at"].dt.tz_convert("Australia/Brisbane")
     return prepared
 
+
+def _normalise_series(values: pd.Series, minimum: float, maximum: float) -> pd.Series:
+    scaled = ((values - minimum) / (maximum - minimum)) * 100.0
+    return scaled.clip(lower=0.0, upper=100.0).fillna(0.0)
+
+
+def _apply_config_normalisation(levels: pd.DataFrame) -> pd.DataFrame:
+    configs = config_object_from_state()
+
+    prepared = levels.copy()
+    water_levels = pd.to_numeric(prepared["level"], errors="coerce")
+    battery_levels = pd.to_numeric(prepared["battery_level"], errors="coerce")
+
+    prepared["normalised_level"] = _normalise_series(
+        water_levels,
+        float(configs.min_water_level),
+        float(configs.max_water_level),
+    )
+    prepared["normalised_battery_level"] = _normalise_series(
+        battery_levels,
+        float(configs.min_battery_level),
+        float(configs.max_battery_level),
+    )
+    return prepared
+
 @st.cache_data(show_spinner=True, ttl=60)
 def _fetch_all_levels_cached() -> pd.DataFrame:
     """DB fetch only. Cache key depends solely on connection + ttl,
@@ -69,7 +99,8 @@ def _fetch_all_levels_cached() -> pd.DataFrame:
         if raw_levels.empty:
             return raw_levels
         
-        return _prepare_levels_frame(raw_levels)
+        sorted_raw_levels = raw_levels.sort_values("inserted_at", ascending=False)
+        return _prepare_levels_frame(sorted_raw_levels)
             
     except requests.RequestException:
         return None
@@ -109,31 +140,33 @@ def load_water_levels_store(
             recent_levels=all_levels,
             latest_water_level=0.0,
             latest_battery_level=0.0,
-            latest_measured_time="N/A",
-            latest_watered_time="N/A",
-            latest_bucket_stocked="N/A",
+            latest_measured_time=None,
+            latest_watered_time=None,
+            latest_bucket_stocked=None,
         )
+
+    all_levels = _apply_config_normalisation(all_levels)
 
     cutoff = pd.Timestamp.now(tz="UTC") - calculated_lookback
     
     recent_levels = all_levels[all_levels["inserted_at"] >= cutoff].sort_values("inserted_at")
     
     latest_row = all_levels.iloc[0]
-    formatted_latest_time = latest_row["aest_time"].strftime("%d %b %H:%M:%S")
+    latest_measured_time = latest_row["aest_time"]
     
     latest_has_watered_row = all_levels[all_levels["has_watered"] == True].iloc[0] if not all_levels[all_levels["has_watered"] == True].empty else None
-    formatted_latest_water_time = latest_has_watered_row["aest_time"].strftime("%d %b %H:%M:%S") if latest_has_watered_row is not None else "N/A"
-
-    formatted_latest_bucket_stocked = latest_row["bucket_stocked"] if "bucket_stocked" in latest_row else "N/A"
+    latest_watered_time = latest_has_watered_row["aest_time"] if latest_has_watered_row is not None else None
+    
+    latest_bucket_stocked = bool(latest_row["bucket_stocked"]) if "bucket_stocked" in latest_row and pd.notna(latest_row["bucket_stocked"]) else None
         
     return WaterLevelsStoreState(
         all_levels=all_levels,
         recent_levels=recent_levels,
-        latest_water_level=float(latest_row["level"]),
-        latest_battery_level=float(latest_row["battery_level"]),
-        latest_measured_time=formatted_latest_time,
-        latest_watered_time=formatted_latest_water_time,
-        latest_bucket_stocked=formatted_latest_bucket_stocked,
+        latest_water_level=int(latest_row["normalised_level"]),
+        latest_battery_level=int(latest_row["normalised_battery_level"]),
+        latest_measured_time=latest_measured_time,
+        latest_watered_time=latest_watered_time,
+        latest_bucket_stocked=latest_bucket_stocked,
     )
 
 

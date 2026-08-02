@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
 
-DEFAULT_RANGES = [[0.35, "#EF4444"], [0.75, "#F59E0B"], [1, "#22C55E"]]
+DEFAULT_RANGES = [[0.2, "#EF4444"], [0.3, "#F59E0B"], [0.7, "#22C55E"], [0.8, "#F59E0B"], [1.0, "#EF4444"]]
 
 
 def moisture_gauge(

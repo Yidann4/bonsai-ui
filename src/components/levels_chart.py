@@ -34,7 +34,7 @@ def levels_chart(levels_array: pd.DataFrame):
         .mark_area(opacity=0.45)
         .encode(
             x=alt.X("aest_time:T", title="Time"),
-            y=alt.Y("level:Q", title="Level"),
+            y=alt.Y("normalised_level:Q", title="Level", scale=alt.Scale(domain=[0, 100])),
             color=alt.value("#2E8B57"),
             tooltip=tooltip_fields,
         )
@@ -45,13 +45,13 @@ def levels_chart(levels_array: pd.DataFrame):
         .mark_line(strokeWidth=2)
         .encode(
             x=alt.X("aest_time:T", title="Time"),
-            y=alt.Y("battery_level:Q", title="Battery Level"),
+            y=alt.Y("normalised_battery_level:Q", title="Battery Level", scale=alt.Scale(domain=[0, 100])),
             color=alt.value("#D9534F"),
             tooltip=tooltip_fields,
         )
     )
 
-    combined_chart = alt.layer(level_chart, battery_chart).resolve_scale(y="independent")
+    combined_chart = alt.layer(level_chart, battery_chart)
     if "lookback_toggle_index" not in st.session_state:
         st.session_state["lookback_toggle_index"] = 0
 
